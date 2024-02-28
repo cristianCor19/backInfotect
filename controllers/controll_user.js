@@ -120,7 +120,6 @@ export async function loginUser(req, res) {
         const role = userFound.role
         console.log(role);
 
-      
 
         const token = await createAccessToken({
             id: userFound._id, role: userFound.role
@@ -128,10 +127,14 @@ export async function loginUser(req, res) {
 
         console.log(token);
 
-        res.cookie('token', token, {
-            httpOnly: process.env.NODE_ENV !== "production",
-            secure: true,
-            sameSite: "None",
+        // res.cookie('token', token, {
+        //     httpOnly: process.env.NODE_ENV !== "production",
+        //     secure: true,
+        //     sameSite: "None",
+        // })
+
+        res.send({
+            token
         })
 
         return res.status(200).json({
@@ -166,7 +169,7 @@ export async function verifyToken(req, res) {
             message: 'No existe autorizacion'
         })
 
-
+        
         return res.json({
             id: userFound._id,
             name: userFound.name,
