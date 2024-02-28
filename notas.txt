@@ -1,0 +1,20 @@
+*Crear un usuario 
+
+{
+  "name": "Cristian",
+  "lastname": "Cordoba",
+  "email": "cristian@gmail.com",
+  "password": "cristian",
+  "phone": 3224506325,
+  "role": "administrator"
+}
+
+{
+  "id_product": "ab123",
+  "name": "Acer nitro",
+  "price" : 10000,
+  "description": "color negro",
+  "image" : "https://image1",
+  "quantity" : 5,
+  "type" : "portátiles"
+}
