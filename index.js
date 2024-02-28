@@ -22,7 +22,7 @@ app.use(cookieParser())
 
 const corsOptions = {
     credentials: true,
-    origin: ['https://frontend-client-y89z.vercel.app', 'http://localhost:5174']
+    origin: ['https://frontend-client-wine.vercel.app', 'http://localhost:5174']
 };
 
 app.use(cors(corsOptions));
