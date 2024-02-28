@@ -133,15 +133,14 @@ export async function loginUser(req, res) {
         //     sameSite: "None",
         // })
 
-        res.send({
-            token
-        })
+       
 
         return res.status(200).json({
             "status": true,
             "data": userFound,
             "role": role,
-            "message": "Inicio de sesión exitoso"
+            "message": "Inicio de sesión exitoso",
+            "token": token
         })
     } catch (error) {
         return res.status(500).json({
