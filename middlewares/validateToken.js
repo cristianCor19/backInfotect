@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken'
 
 
 export const authRequired = (req, res, next) => {
-
-    const {token} = req.cookies 
+    console.log('test auth required');
+    const token = req.params.token
 
     if(!token) return res.status(401).json({message: 'No existe el token, autorizacion denegada' })
 

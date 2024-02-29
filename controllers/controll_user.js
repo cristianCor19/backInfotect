@@ -118,14 +118,12 @@ export async function loginUser(req, res) {
         //asignar el role
 
         const role = userFound.role
-        console.log(role);
 
 
         const token = await createAccessToken({
             id: userFound._id, role: userFound.role
         })
 
-        console.log(token);
 
         // res.cookie('token', token, {
         //     httpOnly: process.env.NODE_ENV !== "production",
@@ -151,8 +149,8 @@ export async function loginUser(req, res) {
 }
 
 export async function verifyToken(req, res) {
-    console.log('entro a verificar por recarga');
-    const { token } = req.cookies
+    // console.log('entro a verificar por recarga');
+    const token = req.params.token
 
     if (!token) return res.status(401).json({
         message: 'No existe autorizacion'
@@ -179,9 +177,11 @@ export async function verifyToken(req, res) {
 }
 
 export async function verifyUser(req, res) {
-
+    // console.log('hola buenas noches mi nombre es rosell');
     try {
-        const { token } = req.cookies
+        // const  {token } = req.body
+        const token = req.params.token
+        // console.log(token);
         const decoded = jwt.decode(token);
         const role = decoded.role
         console.log(role);
