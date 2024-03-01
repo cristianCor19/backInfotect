@@ -33,8 +33,9 @@ export async function createSession(req, res) {
         const session = await stripe.checkout.sessions.create({
             line_items: lineItems,
             mode: 'payment',
-            success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
-            cancel_url: 'http://localhost:3000/payment/cancel',
+            success_url: `https://frontend-client-wine.vercel.app/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            // success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            cancel_url: 'https://frontend-client-wine.vercel.app/payment/cancel',
         });
 
         return res.json(session);
@@ -164,7 +165,7 @@ export async function success(req, res){
             // console.log(productCart.user);
             
         })
-        res.redirect('http://localhost:5173/ThanksPurchase');
+        res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
     } catch (error) {
         console.error('Error processing success:', error);
         res.status(500).json({ error: 'Internal Server Error' });
