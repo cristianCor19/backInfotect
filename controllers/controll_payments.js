@@ -31,17 +31,17 @@ export async function createSession(req, res) {
 
         // console.log(lineItems);
 
-        lineItems.map(product => {
-            console.log(product);
-        })
+        
         // // Crear la sesión de Stripe con los productos del carrito
-        // const session = await stripe.checkout.sessions.create({
-        //     line_items: lineItems,
-        //     mode: 'payment',
-        //     success_url: `https://frontend-client-wine.vercel.app/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
-        //     // success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
-        //     cancel_url: 'https://frontend-client-wine.vercel.app/payment/cancel',
-        // });
+        const session = await stripe.checkout.sessions.create({
+            line_items: lineItems,
+            mode: 'payment',
+            success_url: `https://frontend-client-wine.vercel.app/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            // success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            cancel_url: 'https://frontend-client-wine.vercel.app/payment/cancel',
+        });
+
+        console.log(session);
 
         // return res.json(session);
         return res.json(
