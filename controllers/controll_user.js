@@ -26,15 +26,12 @@ export async function saveUser(req, res) {
             const dataUserSave = await newUser.save()
 
             const token = await createAccessToken({ id: dataUserSave._id, role: dataUserSave.role })
-            res.cookie('token', token, {
-                httpOnly: process.env.NODE_ENV !== "development",
-                secure: false,
-                sameSite: "Lax",
-            });
+          
 
             return res.status(200).json({
                 "status": true,
-                "data": dataUserSave
+                "data": dataUserSave,
+                "token": token
             })
         } else {
             return res.status(200).json({
@@ -123,15 +120,6 @@ export async function loginUser(req, res) {
         const token = await createAccessToken({
             id: userFound._id, role: userFound.role
         })
-
-
-        // res.cookie('token', token, {
-        //     httpOnly: process.env.NODE_ENV !== "production",
-        //     secure: true,
-        //     sameSite: "None",
-        // })
-
-       
 
         return res.status(200).json({
             "status": true,
