@@ -45,9 +45,7 @@ export async function createSession(req, res) {
 
         // return res.json(session);
         return res.json(
-            {
-                "message": "Inicio de sesión exitoso"
-            }
+            session
         );
 
     } catch (error) {
