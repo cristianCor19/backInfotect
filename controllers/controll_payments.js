@@ -29,8 +29,11 @@ export async function createSession(req, res) {
             quantity: productCart.quantity,
         }));
 
-        console.log(lineItems);
+        // console.log(lineItems);
 
+        lineItems.map(product => {
+            console.log(product);
+        })
         // // Crear la sesión de Stripe con los productos del carrito
         // const session = await stripe.checkout.sessions.create({
         //     line_items: lineItems,
