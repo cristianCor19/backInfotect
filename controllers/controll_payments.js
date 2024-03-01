@@ -36,9 +36,9 @@ export async function createSession(req, res) {
         const session = await stripe.checkout.sessions.create({
             line_items: lineItems,
             mode: 'payment',
-            success_url: `https://frontend-client-wine.vercel.app/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            success_url: `https://backinfotect.onrender.com/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
             // success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
-            cancel_url: 'https://frontend-client-wine.vercel.app/payment/cancel',
+            cancel_url: 'https://backinfotect.onrender.com/payment/cancel',
         });
 
         console.log(session);
