@@ -11,23 +11,25 @@ export async function createSession(req, res) {
     try {
         const cart = req.body;
 
-        cart.map(product => {
-            console.log(product.name);
-            console.log(product.quantity);
-            console.log(product.price);
-        })
+        // cart.map(product => {
+        //     console.log(product.name);
+        //     console.log(product.quantity);
+        //     console.log(product.price);
+        // })
         // Mapear cada producto en el carrito a un objeto compatible con Stripe
-        // const lineItems = cart.map(productCart => ({
-        //     price_data: {
-        //         product_data: {
-        //             name: productCart.name,
+        const lineItems = cart.map(productCart => ({
+            price_data: {
+                product_data: {
+                    name: productCart.name,
 
-        //         },
-        //         currency: 'usd', // Ajusta según tu configuración
-        //         unit_amount: productCart.price * 100, // Convierte el precio a centavos (Stripe espera el precio en centavos)
-        //     },
-        //     quantity: productCart.quantity,
-        // }));
+                },
+                currency: 'usd', // Ajusta según tu configuración
+                unit_amount: productCart.price * 100, // Convierte el precio a centavos (Stripe espera el precio en centavos)
+            },
+            quantity: productCart.quantity,
+        }));
+
+        console.log(lineItems);
 
         // // Crear la sesión de Stripe con los productos del carrito
         // const session = await stripe.checkout.sessions.create({
@@ -41,7 +43,7 @@ export async function createSession(req, res) {
         // return res.json(session);
         return res.json(
             {
-                messages: "answer"
+                "message": "Inicio de sesión exitoso"
             }
         );
 
