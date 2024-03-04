@@ -225,7 +225,7 @@ export async function sendMailRecoveryPass(req, res) {
         
             Si has solicitado el cambio de contraseña, por favor haz clic en el siguiente enlace para proceder con la recuperación de tu cuenta:
         
-            http://localhost:5173/updatePasswordRecovery/${userFound._id}
+            https://frontend-client-wine.vercel.app/updatePasswordRecovery/${userFound._id}
         
             Este enlace es válido por un tiempo limitado por razones de seguridad. Si no completas la recuperación en el plazo especificado, deberás iniciar el proceso nuevamente.
         
