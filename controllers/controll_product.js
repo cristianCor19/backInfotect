@@ -87,4 +87,31 @@ export async function deleteProduct(req, res) {
     }
 }
 
+export async function searchProducts(req, res) {
+    try {
+        console.log('within search');
+        const { query } = req.query;
+
+        console.log(query);
+
+        // Realiza una consulta a la base de datos (MongoDB) para obtener productos relacionados
+        if (query !== null && query !== undefined) {
+            const regex = new RegExp(query, 'i'); // 'i' indica insensibilidad a mayúsculas y minúsculas
+            const results = await product.find({
+                $or: [
+                    { name: { $regex: regex } },
+                    { description: { $regex: regex } }
+                ]
+            });
+
+            res.json(results);
+        } else {
+            res.status(400).json({ message: 'La consulta de búsqueda es nula o indefinida.' });
+        }
+    } catch (error) {
+        // console.error(error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+}
+
 
