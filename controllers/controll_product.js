@@ -3,7 +3,7 @@ import product from '../models/product.js'
 
 export async function saveProduct(req, res) {
     try {
-        console.log('entro registro back');
+    
         const { id_product, name, price, description, image, quantity, type } = req.body
         const Product = await product.findOne({ id_product: id_product })
         if (!Product) {
@@ -17,6 +17,7 @@ export async function saveProduct(req, res) {
                 quantity: quantity,
                 type: type
             })
+
 
             const dataProductSave = await newProduct.save()
             return res.status(200).json({
