@@ -91,11 +91,9 @@ export async function obtainAllProductsCart(req, res) {
 
     
 
-        // carts.forEach(product => {
-        //     const subtotal = product.quantity * product.price
-        //     subtotals.push(subtotal);
-        //     total = total+ product.price 
-        // })
+        carts.forEach(product => {
+            total = total+ product.price 
+        })
         
     
         return res.status(200).json({
