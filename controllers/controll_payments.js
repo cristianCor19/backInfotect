@@ -24,7 +24,7 @@ export async function createSession(req, res) {
 
                 },
                 currency: 'usd', // Ajusta según tu configuración
-                unit_amount: productCart.price * 100, // Convierte el precio a centavos (Stripe espera el precio en centavos)
+                unit_amount: productCart.price * 10, // Convierte el precio a centavos (Stripe espera el precio en centavos)
             },
             quantity: productCart.quantity,
         }));
@@ -82,15 +82,21 @@ export async function createCart(req, res) {
 
 export async function obtainAllProductsCart(req, res) {
     try {
+        console.log('test subtotal');
         let total = 0
+        let subtotals = []
         const carts = await Cart.find({
             user: req.user.id
         }).populate('user')
 
-        carts.map(product => {
-             total = total+ product.price 
-        })
-        console.log(total);
+    
+
+        // carts.forEach(product => {
+        //     const subtotal = product.quantity * product.price
+        //     subtotals.push(subtotal);
+        //     total = total+ product.price 
+        // })
+        
     
         return res.status(200).json({
             "status": true,
