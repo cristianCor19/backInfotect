@@ -204,7 +204,7 @@ export async function sendMailRecoveryPass(req, res) {
             service: 'Gmail',
             auth: {
                 user: 'remainsystem32@gmail.com',
-                pass: process.env.EMAIL
+                pass: 'ohgw qzed pyzt bppq'
             }
         })
 
