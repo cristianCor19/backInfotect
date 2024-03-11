@@ -199,13 +199,12 @@ export async function sendMailRecoveryPass(req, res) {
     const userFound = await User.findOne({ email: email })
 
 
-
     if (userFound) {
         const transporter = createTransport({
             service: 'Gmail',
             auth: {
                 user: 'remainsystem32@gmail.com',
-                pass: 'ohgw qzed pyzt bppq'
+                pass: process.env.EMAIL
             }
         })
 
