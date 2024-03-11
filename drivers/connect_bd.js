@@ -1,11 +1,9 @@
-// connect_bd.js
 import mongoose from 'mongoose';
 
 const options = {
     useNewUrlParser: true,
     useUnifiedTopology: true
 };
-
 
 const connectToDatabase = async () => {
     try {
