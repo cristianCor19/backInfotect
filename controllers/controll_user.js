@@ -3,6 +3,8 @@ import { genSalt, hash, compare } from 'bcrypt'
 import { createAccessToken } from '../libs/jwt.js'
 import jwt from 'jsonwebtoken'
 import { createTransport } from 'nodemailer'
+import { EMAIL } from "../config.js";
+
 
 
 
@@ -204,7 +206,7 @@ export async function sendMailRecoveryPass(req, res) {
             service: 'Gmail',
             auth: {
                 user: 'remainsystem32@gmail.com',
-                pass: 'ohgw qzed pyzt bppq'
+                pass: EMAIL
             }
         })
 
