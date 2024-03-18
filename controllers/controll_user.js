@@ -196,6 +196,7 @@ function obtenerFechaYHoraActual() {
 }
 
 export async function sendMailRecoveryPass(req, res) {
+    console.log(EMAIL);
     const { email } = req.body
     const fechaYHora = obtenerFechaYHoraActual();
     const userFound = await User.findOne({ email: email })
