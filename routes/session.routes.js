@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { loginUserSchema } from '../shemas/user.schema.js'
-
+import { validateSchema } from '../middlewares/validatorRequest.js'
 import {
     loginUser,
     sendMailRecoveryPass,
@@ -9,7 +9,7 @@ import {
     verifyUser,
     updatePasswordRecovery 
     
-} from "../controllers/controll_session";
+} from "../controllers/controll_session.js";
 
 const router = Router();
 

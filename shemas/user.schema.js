@@ -31,6 +31,7 @@ export const registerUserShema = z.object({
 })
 
 //modelo para la peticion de login, de forma que se envien todos los datos necesarios
+// Template for login request, so that all necessary data is sent
 export const loginUserSchema = z.object({
     email: z.string({
         required_error: 'El correo es requerido'
@@ -38,7 +39,4 @@ export const loginUserSchema = z.object({
         message: 'El correo es invalido'
     }),
 
-    password: z.string({
-        required_error: 'Contraseña es requerida'
-    })
 })
