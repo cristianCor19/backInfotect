@@ -3,11 +3,12 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import connectToDatabase from './drivers/connect_bd.js';
 import userRoutes from './routes/user.routes.js'
-import productRoutes from './routes/product.routes.js'
-import paymentRoutes from './routes/payment.routes.js'
-// const { auth,requiresAuth } = require('express-openid-connect');
+import sessionRoutes from './routes/session.routes.js';
+import productRoutes from './routes/product.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+
 const app = express()
-// const { swaggerUi, specs } = require('./swagger')
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -35,7 +36,7 @@ app.listen(app.get('PORT'), ()=>{
 connectToDatabase();
 
 
-
+app.use('/session', sessionRoutes)
 app.use('/user',userRoutes) 
 app.use('/product',productRoutes)   
 app.use('/payment', paymentRoutes)
