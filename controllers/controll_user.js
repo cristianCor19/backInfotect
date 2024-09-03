@@ -89,8 +89,6 @@ export async function deleteUser(req, res) {
     }
 }
 
-
-
 export async function profile(req, res) {
     const userFound = await User.findById(req.user.id)
 
