@@ -19,3 +19,5 @@ router.get('/verify/:token', verifyToken)
 router.post('/logout', verifyToken, logout)
 router.put('/updatePasswordRecovery', updatePasswordRecovery)
 router.post('/sendEmail/email', sendMailRecoveryPass)
+
+export default router;
