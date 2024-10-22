@@ -12,18 +12,15 @@ const app = express()
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-
-
 app.set('PORT', process.env.PORT)
 app.use(express.json())
 app.use(cookieParser())
 
-//configuracion de cors para tener diferentes rutas de origen para usar la api
+//Configuration of cors to have different source paths when using in the api
 
 const corsOptions = {
     credentials: true,
-    origin: ['https://frontend-client-wine.vercel.app','https://frontend-administrator-kappa.vercel.app', 'http://localhost:5173']
+    origin: [process.env.CLIENT, process.env.ADMIN]
 };
 
 app.use(cors(corsOptions));
