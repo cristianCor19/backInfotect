@@ -10,12 +10,6 @@ const stripe = new Stripe(KEYSTRIPE)
 export async function createSession(req, res) {
     try {
         const cart = req.body;
-
-        // cart.map(product => {
-        //     console.log(product.name);
-        //     console.log(product.quantity);
-        //     console.log(product.price);
-        // })
         // Mapear cada producto en el carrito a un objeto compatible con Stripe
         const lineItems = cart.map(productCart => ({
             price_data: {
@@ -23,7 +17,7 @@ export async function createSession(req, res) {
                     name: productCart.name,
 
                 },
-                currency: 'usd', // Ajusta según tu configuración
+                currency: 'cop', // Ajusta según tu configuración
                 unit_amount: productCart.price * 10, // Convierte el precio a centavos (Stripe espera el precio en centavos)
             },
             quantity: productCart.quantity,
@@ -41,9 +35,7 @@ export async function createSession(req, res) {
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
         });
 
-        console.log(session);
-
-        // return res.json(session);
+        // console.log(session)
         return res.json(
             session
         );
