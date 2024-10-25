@@ -1,5 +1,6 @@
 import User from '../models/user.js'
 import jwt from 'jsonwebtoken'
+import { createAccessToken } from '../libs/jwt.js'
 import { genSalt, hash, compare } from 'bcrypt'
 import { createTransport } from 'nodemailer'
 import { EMAIL } from "../config.js";
@@ -9,7 +10,6 @@ export async function loginUser(req, res) {
         console.log('entro a login');
         const { email, password } = req.body
         const userFound = await User.findOne({ email: email })
-        // console.log(User)
         if (!userFound) {
             return res.status(404).json({
                 "status": false,
@@ -18,22 +18,21 @@ export async function loginUser(req, res) {
         }
 
         const passwordMatch = await compare(password, userFound.password)
+        
         if (!passwordMatch) {
             return res.status(401).json({
                 "status": false,
                 "message": "Contraseña incorrecta"
             })
         }
-
         //asignar el role
-
         const role = userFound.role
-
-
+    
         const token = await createAccessToken({
             id: userFound._id, role: userFound.role
         })
 
+    
         return res.status(200).json({
             "status": true,
             "data": userFound,
