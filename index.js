@@ -20,7 +20,7 @@ app.use(cookieParser())
 
 const corsOptions = {
     credentials: true,
-    origin: [process.env.CLIENT, process.env.ADMIN]
+    origin: [process.env.CLIENT, process.env.ADMIN, "http://localhost:5173"]
 };
 
 app.use(cors(corsOptions));
