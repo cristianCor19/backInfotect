@@ -1,7 +1,5 @@
 import User from '../models/user.js'
-import { genSalt, hash, compare } from 'bcrypt'
-import { createAccessToken } from '../libs/jwt.js'
-
+import { genSalt, hash } from 'bcrypt'
 
 export async function saveUser(req, res) {
     try {
@@ -22,13 +20,9 @@ export async function saveUser(req, res) {
 
             const dataUserSave = await newUser.save()
 
-            const token = await createAccessToken({ id: dataUserSave._id, role: dataUserSave.role })
-          
-
             return res.status(200).json({
                 "status": true,
                 "data": dataUserSave,
-                "token": token
             })
         } else {
             return res.status(200).json({
@@ -73,7 +67,7 @@ export async function findUserById(req, res) {
         })
     }
 }
-export async function deleteUser(req, res) {
+export async function deleteUser(req, res) {1
     try {
         const id = req.params.id
         const userDeleted = await User.findByIdAndDelete(id)
@@ -91,6 +85,8 @@ export async function deleteUser(req, res) {
 
 export async function profile(req, res) {
     const userFound = await User.findById(req.user.id)
+    console.log('method profile');
+    
 
     if (!userFound) return res.status(404).json({
         message: 'Usuario no encontrado'

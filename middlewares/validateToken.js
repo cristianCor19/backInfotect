@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 
 
 export const authRequired = (req, res, next) => {
-    console.log('test auth required');
+    
     const token = req.params.token
 
     if(!token) return res.status(401).json({message: 'No existe el token, autorizacion denegada' })
