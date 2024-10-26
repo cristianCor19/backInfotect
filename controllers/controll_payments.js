@@ -34,8 +34,7 @@ export async function createSession(req, res) {
                 quantity: item.quantity
             })),
             mode: 'payment',
-            //success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            success_url: `http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
             metadata: {
                 orderInfo: JSON.stringify(orderData),
