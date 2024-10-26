@@ -10,39 +10,52 @@ const stripe = new Stripe(KEYSTRIPE)
 export async function createSession(req, res) {
     try {
         const cart = req.body;
-        // Mapear cada producto en el carrito a un objeto compatible con Stripe
-        const lineItems = cart.map(productCart => ({
-            price_data: {
-                product_data: {
-                    name: productCart.name,
-
-                },
-                currency: 'cop', // Ajusta según tu configuración
-                unit_amount: productCart.price * 10, // Convierte el precio a centavos (Stripe espera el precio en centavos)
-            },
-            quantity: productCart.quantity,
-        }));
-
-        console.log(lineItems);
-
         
-        // // Crear la sesión de Stripe con los productos del carrito
+        // Preparar datos para metadata
+        const orderData = {
+            cartItems: cart.map(item => ({
+                productId: item.product_id,
+                quantity: item.quantity,
+                name: item.name
+            })),
+            userId: cart[0].user._id,
+            orderDate: new Date().toISOString()
+        };
+
         const session = await stripe.checkout.sessions.create({
-            line_items: lineItems,
+            line_items: cart.map(item => ({
+                price_data: {
+                    currency: 'usb',
+                    unit_amount: Math.round(item.price * 100),
+                    product_data: {
+                        name: item.name
+                    }
+                },
+                quantity: item.quantity
+            })),
             mode: 'payment',
-            success_url: `https://back-infotect.vercel.app/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
-            //success_url: `http://localhost:3000/payment/success?products=${encodeURIComponent(JSON.stringify(cart))}`,
+            success_url: `http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
+            metadata: {
+                orderInfo: JSON.stringify(orderData),
+                // sessionId: CHECKOUT_SESSION_ID,
+                totalItems: cart.length,
+                cartInfo: JSON.stringify(cart.map(item => ({
+                    id: item.product_id,
+                    quantity: item.quantity,
+                    name: item.name,
+                    user: item.user._id
+                })))
+            }
         });
-
-        // console.log(session)
-        return res.json(
-            session
-        );
-
+        
+        return res.json(session);
     } catch (error) {
         console.error('Error creating session:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ 
+            error: 'Error creando la sesión de pago',
+            details: error.message 
+        });
     }
 }
 
@@ -55,7 +68,7 @@ export async function createCart(req, res) {
             const cartItem = new Cart({
                 name: product.name,
                 price: product.price,
-                image: product.image, 
+                image: product.image,
                 quantity: product.quantity,
                 product_id: product._id,
                 user: id
@@ -147,36 +160,90 @@ export async function deleteAllProductsCart(req, res) {
     }
 }
 
-export async function success(req, res){
+// 2. Procesar el éxito del pago
+export async function success(req, res) {
     try {
-        console.log('within success');
-        // Obtener los productos desde la URL
-        const productsParam = req.query.products;
-        const productsCart = JSON.parse(decodeURIComponent(productsParam));
-        // Ahora puedes procesar la información de los productos como desees
-         productsCart.map(async(productCart) => {
-            const productFound = await product.findById(productCart.product_id)
-            // console.log(productFound);
-            const productId = productFound._id.toString();
-            console.log(productId );
-            if(productId === productCart.product_id){
-                const newQuantity = productFound.quantity - productCart.quantity
-                await product.findByIdAndUpdate(productFound._id, { quantity: newQuantity });
-                // console.log(newQuantity);
-            }
+        console.log('Processing success payment');
+        const { session_id } = req.query;
+        console.log(session_id);
+        
+        
+        if (!session_id) {
+            throw new Error('No session_id provided');
+        }
 
-            const cartProductsDeleted = await Cart.deleteMany({user: productCart.user})
-            console.log(cartProductsDeleted);
-            // console.log(productCart.user);
+        // Recuperar la sesión de Stripe
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        
+        // Verificar que el pago fue exitoso
+        if (session.payment_status === 'paid') {
+            console.log('Payment confirmed as paid');
             
-        })
-        res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+            // Obtener la información que guardamos en metadata
+            const orderInfo = JSON.parse(session.metadata.orderInfo);
+            const productsCart = JSON.parse(session.metadata.cartInfo);
+            
+            console.log('Order info recovered:', orderInfo);
+            console.log('Products recovered:', productsCart);
+
+            // Procesar cada producto del carrito
+            await Promise.all(productsCart.map(async (productCart) => {
+                try {
+                    // Buscar el producto en la base de datos
+                    const productFound = await product.findById(productCart.id);
+                    
+                    if (!productFound) {
+                        console.error(`Product not found: ${productCart.id}`);
+                        return;
+                    }
+
+                    const productId = productFound._id.toString();
+                    console.log('Processing product:', productId);
+
+                    // Verificar y actualizar inventario
+                    if (productId === productCart.id) {
+                        const newQuantity = productFound.quantity - productCart.quantity;
+                        
+                        if (newQuantity < 0) {
+                            console.error(`Insufficient quantity for product: ${productCart.name}`);
+                            throw new Error(`Insufficient inventory for ${productCart.name}`);
+                        }
+
+                        await product.findByIdAndUpdate(productFound._id, {
+                            quantity: newQuantity
+                        });
+                        console.log(`Updated quantity for ${productCart.name}: ${newQuantity}`);
+                    }
+                } catch (error) {
+                    console.error(`Error processing product ${productCart.id}:`, error);
+                    throw error; // Propagar el error para manejar el fallo de la transacción
+                }
+            }));
+
+            // Limpiar el carrito una vez que todo se procesó correctamente
+            const cartProductsDeleted = await Cart.deleteMany({
+                user: productsCart[0].user
+            });
+            console.log('Cart products deleted:', cartProductsDeleted);
+
+            // Registro de la orden 
+            // const newOrder = await Order.create({
+            //     userId: productsCart[0].user,
+            //     items: productsCart,
+            //     stripeSessionId: session_id,
+            //     totalAmount: session.amount_total,
+            //     orderDate: orderInfo.orderDate
+            // });
+
+            res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+        } else {
+            throw new Error('Payment not completed');
+        }
     } catch (error) {
         console.error('Error processing success:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({
+            error: 'Error procesando el pago',
+            details: error.message
+        });
     }
-
 }
-
-
-
