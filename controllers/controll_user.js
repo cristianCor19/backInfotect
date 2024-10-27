@@ -22,10 +22,10 @@ export async function saveUser(req, res) {
 
             return res.status(200).json({
                 "status": true,
-                "data": dataUserSave,
+                "message": "User saved successfully",
             })
         } else {
-            return res.status(200).json({
+            return res.status(409).json({
                 "status": false,
                 "error": error,
                 "message": "Correo ya registrado"
