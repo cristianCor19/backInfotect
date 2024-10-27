@@ -10,7 +10,6 @@ const stripe = new Stripe(KEYSTRIPE)
 export async function createSession(req, res) {
     try {
         const cart = req.body;
-        
         // Preparar datos para metadata
         const orderData = {
             cartItems: cart.map(item => ({
@@ -63,7 +62,6 @@ export async function createCart(req, res) {
     try {
         const id = req.params.id
         const cart = req.body;
-        console.log(id);
         const savedCartItems = await Promise.all(cart.map(async (product) => {
             const cartItem = new Cart({
                 name: product.name,
@@ -75,9 +73,10 @@ export async function createCart(req, res) {
             });
             const res =  await cartItem.save();
         }));
+
+        
         return res.status(200).json({
             "status": true,
-            "data": savedCartItems,
             "message": "Carrito guardado con exito"
         })
     } catch (error) {
@@ -87,24 +86,32 @@ export async function createCart(req, res) {
 
 export async function obtainAllProductsCart(req, res) {
     try {
-        console.log('test subtotal');
         let total = 0
-        let subtotals = []
+        // let subtotals = []
         const carts = await Cart.find({
             user: req.user.id
         }).populate('user')
-
-    
+        
+        const cartFound = carts.map(element => ({
+            _id: element._id,
+            name: element.name,
+            price: element.price,
+            quantity: element.quantity,
+            image: element.image,
+            product_id: element.product_id,
+            user: {
+                _id: element.user._id
+            }
+        }))
 
         carts.forEach(product => {
             total = total+ product.price 
         })
         
-    
         return res.status(200).json({
             "status": true,
             "data": {
-                carts: carts,
+                carts: cartFound,
                 total: total
             }
         })
@@ -118,12 +125,10 @@ export async function obtainAllProductsCart(req, res) {
 
 export async function deleteProductCart(req, res) {
     try {
-        console.log('within deleteProductCart');
         const idProductCart = req.params.id
 
         const cartProductDeleted = await Cart.deleteMany({product_id:idProductCart})
-
-        console.log(cartProductDeleted);
+        
         return res.status(200).json({
             "status": true,
             "data": cartProductDeleted
@@ -144,8 +149,7 @@ export async function deleteAllProductsCart(req, res) {
        
         cartProducts.map(async(productCart) => {
             const cartProductsDeleted = await Cart.deleteMany({user:productCart.user._id})
-
-            
+  
         })
         
         return res.status(200).json({
@@ -179,17 +183,15 @@ export async function success(req, res) {
         if (session.payment_status === 'paid') {
             console.log('Payment confirmed as paid');
             
-            // Obtener la información que guardamos en metadata
-            const orderInfo = JSON.parse(session.metadata.orderInfo);
+            // Obtener la información del metadata
+            // const orderInfo = JSON.parse(session.metadata.orderInfo);
             const productsCart = JSON.parse(session.metadata.cartInfo);
             
-            console.log('Order info recovered:', orderInfo);
-            console.log('Products recovered:', productsCart);
 
             // Procesar cada producto del carrito
             await Promise.all(productsCart.map(async (productCart) => {
                 try {
-                    // Buscar el producto en la base de datos
+                    // Buscar el producto en la base datos
                     const productFound = await product.findById(productCart.id);
                     
                     if (!productFound) {
@@ -200,7 +202,7 @@ export async function success(req, res) {
                     const productId = productFound._id.toString();
                     console.log('Processing product:', productId);
 
-                    // Verificar y actualizar inventario
+                    // Verificar y actualizar el inventario
                     if (productId === productCart.id) {
                         const newQuantity = productFound.quantity - productCart.quantity;
                         
@@ -216,17 +218,17 @@ export async function success(req, res) {
                     }
                 } catch (error) {
                     console.error(`Error processing product ${productCart.id}:`, error);
-                    throw error; // Propagar el error para manejar el fallo de la transacción
+                    throw error; // 
                 }
             }));
 
-            // Limpiar el carrito una vez que todo se procesó correctamente
+            // Limpiar el carrito si el proceso es correcto
             const cartProductsDeleted = await Cart.deleteMany({
                 user: productsCart[0].user
             });
             console.log('Cart products deleted:', cartProductsDeleted);
 
-            // Registro de la orden 
+            // Registro de la orden --- pendiente
             // const newOrder = await Order.create({
             //     userId: productsCart[0].user,
             //     items: productsCart,
