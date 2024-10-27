@@ -41,6 +41,7 @@ export async function saveProduct(req, res) {
 export async function obtainAllProducts(req, res) {
     try {
         const dataProducts = await product.find()
+        
         return res.status(200).json({
             "status": true,
             "data": dataProducts
