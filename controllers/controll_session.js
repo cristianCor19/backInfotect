@@ -7,7 +7,6 @@ import { EMAIL } from "../config.js";
 
 export async function loginUser(req, res) {
     try {
-        console.log('entro a login');
         const { email, password } = req.body
         const userFound = await User.findOne({ email: email })
         if (!userFound) {
@@ -16,9 +15,8 @@ export async function loginUser(req, res) {
                 "message": "Usuario no encontrado"
             })
         }
-
-        const passwordMatch = await compare(password, userFound.password)
         
+        const passwordMatch = await compare(password, userFound.password)
         if (!passwordMatch) {
             return res.status(401).json({
                 "status": false,
@@ -27,15 +25,22 @@ export async function loginUser(req, res) {
         }
         //asignar el role
         const role = userFound.role
-    
+        
         const token = await createAccessToken({
             id: userFound._id, role: userFound.role
         })
 
-    
+        const user = ({
+            _id: userFound._id,
+            id_user: userFound.id,
+            name: userFound.name,
+            lastname: userFound.lastname,
+            email: userFound.email
+        })
+        
         return res.status(200).json({
             "status": true,
-            "data": userFound,
+            "data": user,
             "role": role,
             "message": "Inicio de sesión exitoso",
             "token": token
@@ -49,7 +54,6 @@ export async function loginUser(req, res) {
 }
 
 export async function verifyToken(req, res) {
-    // console.log('entro a verificar por recarga');
     const token = req.params.token
 
     if (!token) return res.status(401).json({
@@ -66,7 +70,7 @@ export async function verifyToken(req, res) {
             message: 'No existe autorizacion'
         })
 
-        
+
         return res.json({
             id: userFound._id,
             name: userFound.name,
@@ -84,7 +88,6 @@ export async function verifyUser(req, res) {
         // console.log(token);
         const decoded = jwt.decode(token);
         const role = decoded.role
-        console.log(role);
 
         return res.status(200).json({
             role: role
@@ -110,7 +113,6 @@ export async function sendMailRecoveryPass(req, res) {
     const { email } = req.body
     const fechaYHora = obtenerFechaYHoraActual();
     const userFound = await User.findOne({ email: email })
-
 
     if (userFound) {
         const transporter = createTransport({
@@ -148,7 +150,6 @@ export async function sendMailRecoveryPass(req, res) {
             `
         };
 
-
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log('Error al enviar el correo electronico', error)
@@ -160,7 +161,7 @@ export async function sendMailRecoveryPass(req, res) {
                     lastname: userFound.lastname,
                     email: userFound.email,
                     "state": true,
-                    "message": "funciono"
+                    "message": "Contraseña cambiada con exito"
                 })
             }
         })
@@ -177,7 +178,7 @@ export async function updatePasswordRecovery(req, res) {
     console.log(password);
     console.log(confirmPassword);
 
-    if(password !== confirmPassword) {
+    if (password !== confirmPassword) {
         return res.status(401).json({
             "status": false,
             "message": "Las contraseñas no coinciden"
@@ -189,7 +190,7 @@ export async function updatePasswordRecovery(req, res) {
 
     try {
         const updateUser = await User.findByIdAndUpdate(
-            id, 
+            id,
             { password: newHashedPassword },
             { new: true }
         );
