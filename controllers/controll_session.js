@@ -7,6 +7,8 @@ import { EMAIL } from "../config.js";
 
 export async function loginUser(req, res) {
     try {
+        console.log('llego');
+        
         const { email, password } = req.body
         const userFound = await User.findOne({ email: email })
         if (!userFound) {
@@ -20,7 +22,7 @@ export async function loginUser(req, res) {
         if (!passwordMatch) {
             return res.status(401).json({
                 "status": false,
-                "message": "Contraseña incorrecta"
+                "message": "Usuario o contraseña incorrecta"
             })
         }
         //asignar el role
@@ -48,7 +50,7 @@ export async function loginUser(req, res) {
     } catch (error) {
         return res.status(500).json({
             "status": false,
-            "error": error
+            "error": error.message
         })
     }
 }

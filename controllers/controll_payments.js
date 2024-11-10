@@ -84,6 +84,7 @@ export async function createCart(req, res) {
     }
 }
 
+
 export async function obtainAllProductsCart(req, res) {
     try {
         let total = 0
