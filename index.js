@@ -20,7 +20,7 @@ app.use(cookieParser())
 
 const corsOptions = {
     credentials: true,
-    origin: [ process.env.ADMIN,"https://frontend-client-pink.vercel.app/s"]
+    origin: [ process.env.ADMIN,"https://frontend-client-pink.vercel.app"]
 };
 
 app.use(cors(corsOptions));
