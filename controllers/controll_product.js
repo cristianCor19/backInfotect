@@ -80,32 +80,41 @@ export async function createFavorites(req, res){
 }
 
 export async function deleteFavorite(req, res) {
-    const id_product = req.params.id;
+    try {
+        
+        const id_product = req.params.idProduct;
+        const idUser = req.params.idUser;
+        
+        console.log('arrive delete');
+        
+        console.log(id_product);
+        
     
-    console.log('arrive delete');
+        if(!id_product){
+            return res.status(400).json({
+                'status': false,
+                'message': 'Missing required parameters: id or favorite'
+            })
+        } 
     
-    console.log(id_product);
-    
-
-    if(!id_product){
-        return res.status(400).json({
-            'status': false,
-            'message': 'Missing required parameters: id or favorite'
+        const removeFavorite = await Favorite.deleteOne({
+            product_id:id_product, user: idUser
         })
-    } 
-
-    const removeFavorite = await Favorite.deleteOne({product_id:id_product})
-
-    return res.status(200).json({
-        'status': true,
-        'message': 'delete successfully'
-    })
+    
+        return res.status(200).json({
+            'status': true,
+            'message': 'delete successfully'
+        })
+    }catch (error) {
+        return res.status(500).json({
+            "status": false,
+            "message": error.message
+        })
+    }
 }
 
 export async function getAllProductsFavorites(req, res) {
     try {
-
-        console.log(req.user.id);
         
         const favorites = await Favorite.find({
             user: req.user.id

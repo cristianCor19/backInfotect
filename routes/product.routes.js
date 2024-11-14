@@ -27,7 +27,7 @@ router.post('/registerProduct', saveProduct)
 router.post('/createFavorites/:id', createFavorites)
 router.get('/:id', findProductById)
 router.delete('/:id', deleteProduct)
-router.delete('/delete_favorite/:id', deleteFavorite)
+router.delete('/delete_favorite/:idProduct/:idUser', deleteFavorite)
 
 
 export default router

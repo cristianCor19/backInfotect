@@ -25,9 +25,10 @@ export async function saveUser(req, res) {
                 "message": "User saved successfully",
             })
         } else {
+            console.log('test email');
+            
             return res.status(409).json({
                 "status": false,
-                "error": error,
                 "message": "Correo ya registrado"
             })
         }

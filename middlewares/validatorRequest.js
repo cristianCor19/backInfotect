@@ -5,6 +5,11 @@ export const validateSchema = (schema) => (req, res, next) => {
         schema.parse(req.body)
         next()
     } catch (error) {
+        
+        error.errors.map((erro) => {
+            
+        })
+
         return res.status(400).json(error.errors.map(error => error.message))
     }
 
