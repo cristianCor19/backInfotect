@@ -20,11 +20,10 @@ app.use(cookieParser())
 
 const corsOptions = {
     credentials: true,
-    origin: [ process.env.ADMIN,"https://frontend-client-pink.vercel.app"]
+    origin: [ process.env.ADMIN,"https://frontend-client-pink.vercel.app", "http://localhost:5174", "http://localhost:5173"]
 };
 
 app.use(cors(corsOptions));
-// app.use(auth(config));
 
 app.listen(app.get('PORT'), ()=>{
     console.log(`Server listen to port: ${app.get('PORT')}` );
