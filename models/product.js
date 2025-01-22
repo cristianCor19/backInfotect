@@ -42,4 +42,4 @@ const productSchema = new Schema(
 // Crea un índice de texto para los campos 'name' y 'description'
 productSchema.index({ name: 'text', description: 'text', type: 'text' });
 
-export default model('product', productSchema);
+export default model('Product', productSchema);

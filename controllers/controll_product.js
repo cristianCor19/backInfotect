@@ -1,4 +1,4 @@
-import product from '../models/product.js'
+import Product from '../models/product.js'
 import Favorite from '../models/favorite.js'
 
 
@@ -6,10 +6,10 @@ export async function saveProduct(req, res) {
     try {
     
         const { id_product, name, price, description, image, quantity, type } = req.body
-        const Product = await product.findOne({ id_product: id_product })
+        const Product = await Product.findOne({ id_product: id_product })
         if (!Product) {
             
-            const newProduct = new product({
+            const newProduct = new Product({
                 id_product,
                 name,
                 price,
@@ -148,7 +148,7 @@ export async function getAllProductsFavorites(req, res) {
 
 export async function obtainAllProducts(req, res) {
     try {
-        const dataProducts = await product.find()
+        const dataProducts = await Product.find()
         
         return res.status(200).json({
             "status": true,
@@ -166,7 +166,7 @@ export async function obtainAllProducts(req, res) {
 export async function findProductById(req, res) {
     try {
         const id = req.params.id
-        const dataProduct = await product.findById(id)
+        const dataProduct = await Product.findById(id)
         return res.status(200).json({
             "status": true,
             "data": dataProduct
@@ -183,7 +183,7 @@ export async function findProductById(req, res) {
 export async function deleteProduct(req, res) {
     try {
         const id = req.params.id
-        const productDeleted = await product.findByIdAndDelete(id)
+        const productDeleted = await Product.findByIdAndDelete(id)
         return res.status(200).json({
             "status": true,
             "productDeleted": productDeleted
@@ -207,7 +207,7 @@ export async function searchProducts(req, res) {
         // Realiza una consulta a la base de datos (MongoDB) para obtener productos relacionados
         if (query !== null && query !== undefined) {
             const regex = new RegExp(query, 'i'); // 'i' indica insensibilidad a mayúsculas y minúsculas
-            const results = await product.find({
+            const results = await Product.find({
                 $or: [
                     { name: { $regex: regex } },
                     { description: { $regex: regex } }
