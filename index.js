@@ -6,6 +6,7 @@ import userRoutes from './routes/user.routes.js'
 import sessionRoutes from './routes/session.routes.js';
 import productRoutes from './routes/product.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import soldRoutes from './routes/stats.routes.js';
 
 const app = express()
 
@@ -36,3 +37,4 @@ app.use('/session', sessionRoutes)
 app.use('/user',userRoutes) 
 app.use('/product',productRoutes)   
 app.use('/payment', paymentRoutes)
+app.use('/stats', soldRoutes)
