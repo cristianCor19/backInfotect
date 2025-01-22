@@ -1,8 +1,12 @@
 //al importar stripe se importa como una clase
+//When importing stripe it is imported as a class
 import Stripe from "stripe"
 import { KEYSTRIPE } from "../config.js";
+
 import product from '../models/product.js'
 import Cart from "../models/cart.js";
+import Sales from '../models/sales.js'
+
 
 
 const stripe = new Stripe(KEYSTRIPE)
@@ -33,7 +37,8 @@ export async function createSession(req, res) {
                 quantity: item.quantity
             })),
             mode: 'payment',
-            success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            // success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `https://frontend-client-pink.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
             metadata: {
                 orderInfo: JSON.stringify(orderData),
@@ -185,14 +190,15 @@ export async function success(req, res) {
             console.log('Payment confirmed as paid');
             
             // Obtener la información del metadata
-            // const orderInfo = JSON.parse(session.metadata.orderInfo);
+            // Get metada information
+            const orderInfo = JSON.parse(session.metadata.orderInfo);
             const productsCart = JSON.parse(session.metadata.cartInfo);
             
 
             // Procesar cada producto del carrito
             await Promise.all(productsCart.map(async (productCart) => {
                 try {
-                    // Buscar el producto en la base datos
+                    // Search product in the data base
                     const productFound = await product.findById(productCart.id);
                     
                     if (!productFound) {
@@ -203,7 +209,7 @@ export async function success(req, res) {
                     const productId = productFound._id.toString();
                     console.log('Processing product:', productId);
 
-                    // Verificar y actualizar el inventario
+                    //Verify and update inventory
                     if (productId === productCart.id) {
                         const newQuantity = productFound.quantity - productCart.quantity;
                         
@@ -223,22 +229,26 @@ export async function success(req, res) {
                 }
             }));
 
+            //Clean the car if the process is correct
             // Limpiar el carrito si el proceso es correcto
             const cartProductsDeleted = await Cart.deleteMany({
                 user: productsCart[0].user
             });
             console.log('Cart products deleted:', cartProductsDeleted);
 
-            // Registro de la orden --- pendiente
-            // const newOrder = await Order.create({
-            //     userId: productsCart[0].user,
-            //     items: productsCart,
-            //     stripeSessionId: session_id,
-            //     totalAmount: session.amount_total,
-            //     orderDate: orderInfo.orderDate
-            // });
+            // Record of sales
+            const newOrder = await Sales.create({
+                userId: productsCart[0].user,
+                items: productsCart,
+                stripeSessionId: session_id,
+                totalAmount: session.amount_total/100,
+                orderDate: orderInfo.orderDate
+            });
 
-            res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+            
+
+            // res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+            res.redirect('https://frontend-client-pink.vercel.app/ThanksPurchase');
         } else {
             throw new Error('Payment not completed');
         }
