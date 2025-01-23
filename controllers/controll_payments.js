@@ -38,7 +38,7 @@ export async function createSession(req, res) {
             })),
             mode: 'payment',
             success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            // success_url: `https://back-infotect.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            // success_url: `/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
             metadata: {
                 orderInfo: JSON.stringify(orderData),
@@ -74,7 +74,8 @@ export async function createCart(req, res) {
                 image: product.image,
                 quantity: product.quantity,
                 product_id: product._id,
-                user: id
+                user: id,
+                category: product.type
             });
             const res =  await cartItem.save();
         }));
