@@ -24,6 +24,10 @@ const cartSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
        
+        },
+        category: {
+            type: String,
+            required: true,
         }
     }
 )
