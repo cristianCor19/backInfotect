@@ -19,6 +19,26 @@ export async function totalSold(req, res){
     }
 }
 
+export async function totalSoldCategory(req, res){
+    try {
+        const sales = await Sales.find();
+        const salesProducts = sales.flatMap(product => 
+            product.items.map(({ type, quantity }) => ({type, quantity }))
+          );
+
+
+        res.status(200).json({
+            "status": true,
+            "data": salesProducts
+        })
+
+        
+    } catch (error) {
+        
+    }
+}
+
+
 
 export async function bestSellingProduct(req, res){
     try {
