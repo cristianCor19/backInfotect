@@ -1,4 +1,3 @@
-//al importar stripe se importa como una clase
 //When importing stripe it is imported as a class
 import Stripe from "stripe"
 import { KEYSTRIPE } from "../config.js";
@@ -6,6 +5,7 @@ import { KEYSTRIPE } from "../config.js";
 import product from '../models/product.js'
 import Cart from "../models/cart.js";
 import Sales from '../models/sales.js'
+import Order from '../models/order.js';
 
 
 
@@ -14,16 +14,20 @@ const stripe = new Stripe(KEYSTRIPE)
 export async function createSession(req, res) {
     try {
         const cart = req.body;
-        // Preparar datos para metadata
+
         const orderData = {
             cartItems: cart.map(item => ({
                 productId: item.product_id,
                 quantity: item.quantity,
-                name: item.name
+                name: item.name,
+                price: item.price,
+                category: item.category
             })),
             userId: cart[0].user._id,
-            orderDate: new Date().toISOString()
+            orderDate: new Date()
         };
+
+        const newOrder = await Order.create(orderData);
 
         const session = await stripe.checkout.sessions.create({
             line_items: cart.map(item => ({
@@ -41,24 +45,16 @@ export async function createSession(req, res) {
             // success_url: `/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://back-infotect.vercel.app/payment/cancel',
             metadata: {
-                orderInfo: JSON.stringify(orderData),
-                // sessionId: CHECKOUT_SESSION_ID,
-                totalItems: cart.length,
-                cartInfo: JSON.stringify(cart.map(item => ({
-                    id: item.product_id,
-                    quantity: item.quantity,
-                    name: item.name,
-                    user: item.user._id
-                })))
+                orderId: newOrder._id.toString()
             }
         });
-        
+
         return res.json(session);
     } catch (error) {
         console.error('Error creating session:', error);
-        res.status(500).json({ 
-            error: 'Error creando la sesión de pago',
-            details: error.message 
+        res.status(500).json({
+            error: 'Error creating session pay',
+            details: error.message
         });
     }
 }
@@ -77,10 +73,10 @@ export async function createCart(req, res) {
                 user: id,
                 category: product.type
             });
-            const res =  await cartItem.save();
+            const res = await cartItem.save();
         }));
 
-        
+
         return res.status(200).json({
             "status": true,
             "message": "Carrito guardado con exito"
@@ -90,7 +86,6 @@ export async function createCart(req, res) {
     }
 }
 
-
 export async function obtainAllProductsCart(req, res) {
     try {
         let total = 0
@@ -98,7 +93,7 @@ export async function obtainAllProductsCart(req, res) {
         const carts = await Cart.find({
             user: req.user.id
         }).populate('user')
-        
+
         const cartFound = carts.map(element => ({
             _id: element._id,
             name: element.name,
@@ -106,15 +101,16 @@ export async function obtainAllProductsCart(req, res) {
             quantity: element.quantity,
             image: element.image,
             product_id: element.product_id,
+            category: element.category,
             user: {
                 _id: element.user._id
             }
         }))
 
         carts.forEach(product => {
-            total = total+ product.price 
+            total = total + product.price
         })
-        
+
         return res.status(200).json({
             "status": true,
             "data": {
@@ -134,8 +130,8 @@ export async function deleteProductCart(req, res) {
     try {
         const idProductCart = req.params.id
 
-        const cartProductDeleted = await Cart.deleteMany({product_id:idProductCart})
-        
+        const cartProductDeleted = await Cart.deleteMany({ product_id: idProductCart })
+
         return res.status(200).json({
             "status": true,
             "data": cartProductDeleted
@@ -148,17 +144,17 @@ export async function deleteProductCart(req, res) {
     }
 }
 
-//borrar todos los productos del carrito 
+//borrar todos los productos del carrito
 export async function deleteAllProductsCart(req, res) {
     try {
         console.log('within deleteAllProductCart');
         const cartProducts = req.body
-       
-        cartProducts.map(async(productCart) => {
-            const cartProductsDeleted = await Cart.deleteMany({user:productCart.user._id})
-  
+
+        cartProducts.map(async (productCart) => {
+            const cartProductsDeleted = await Cart.deleteMany({ user: productCart.user._id })
+
         })
-        
+
         return res.status(200).json({
             "status": true,
             "message": "borrado correctamente"
@@ -177,31 +173,30 @@ export async function success(req, res) {
         console.log('Processing success payment');
         const { session_id } = req.query;
         console.log(session_id);
-        
-        
+
         if (!session_id) {
             throw new Error('No session_id provided');
         }
 
-        // Recuperar la sesión de Stripe
+
         const session = await stripe.checkout.sessions.retrieve(session_id);
-        
-        // Verificar que el pago fue exitoso
+
         if (session.payment_status === 'paid') {
             console.log('Payment confirmed as paid');
-            
-            // Obtener la información del metadata
             // Get metada information
-            const orderInfo = JSON.parse(session.metadata.orderInfo);
-            const productsCart = JSON.parse(session.metadata.cartInfo);
-            
 
-            // Procesar cada producto del carrito
+            const orderId = session.metadata.orderId;
+            const orderInfo = await Order.findById(orderId);
+
+            const productsCart = orderInfo.cartItems;
+
+
+            // process each product in the cart
             await Promise.all(productsCart.map(async (productCart) => {
                 try {
                     // Search product in the data base
-                    const productFound = await product.findById(productCart.id);
-                    
+                    const productFound = await product.findById(productCart.productId);
+
                     if (!productFound) {
                         console.error(`Product not found: ${productCart.id}`);
                         return;
@@ -210,10 +205,10 @@ export async function success(req, res) {
                     const productId = productFound._id.toString();
                     console.log('Processing product:', productId);
 
-                    //Verify and update inventory
-                    if (productId === productCart.id) {
+                    // Verify and update inventory
+                    if (productId === productCart.productId) {
                         const newQuantity = productFound.quantity - productCart.quantity;
-                        
+
                         if (newQuantity < 0) {
                             console.error(`Insufficient quantity for product: ${productCart.name}`);
                             throw new Error(`Insufficient inventory for ${productCart.name}`);
@@ -225,31 +220,30 @@ export async function success(req, res) {
                         console.log(`Updated quantity for ${productCart.name}: ${newQuantity}`);
                     }
                 } catch (error) {
-                    console.error(`Error processing product ${productCart.id}:`, error);
-                    throw error; // 
+                    console.error(`Error processing product ${productCart.productId}:`, error);
+                    throw error; //
                 }
             }));
 
+            const userId = orderInfo.userId;
+            
             //Clean the car if the process is correct
-            // Limpiar el carrito si el proceso es correcto
             const cartProductsDeleted = await Cart.deleteMany({
-                user: productsCart[0].user
+                user: userId
             });
             console.log('Cart products deleted:', cartProductsDeleted);
 
             // Record of sales
             const newOrder = await Sales.create({
-                userId: productsCart[0].user,
+                userId: userId,
                 items: productsCart,
                 stripeSessionId: session_id,
                 totalAmount: session.amount_total/100,
                 orderDate: orderInfo.orderDate
             });
 
-            
-
-            // res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
-            res.redirect('https://frontend-client-pink.vercel.app/ThanksPurchase');
+            res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+            // res.redirect('/ThanksPurchase');
         } else {
             throw new Error('Payment not completed');
         }
