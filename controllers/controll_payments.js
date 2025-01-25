@@ -242,7 +242,7 @@ export async function success(req, res) {
                 orderDate: orderInfo.orderDate
             });
 
-            res.redirect('https://frontend-client-wine.vercel.app/ThanksPurchase');
+            res.redirect('https://frontend-client-pink.vercel.app/ThanksPurchase');
             // res.redirect('/ThanksPurchase');
         } else {
             throw new Error('Payment not completed');
