@@ -6,8 +6,8 @@ export async function saveProduct(req, res) {
     try {
     
         const { id_product, name, price, description, image, quantity, type } = req.body
-        const Product = await Product.findOne({ id_product: id_product })
-        if (!Product) {
+        const productFound = await Product.findOne({ id_product: id_product })
+        if (!productFound) {
             
             const newProduct = new Product({
                 id_product,
@@ -26,7 +26,7 @@ export async function saveProduct(req, res) {
                 "dataProductSave": dataProductSave
             })
         } else {
-            return res.status(200).json({
+            return res.status(400).json({
                 "status": false,
                 "message": "Producto ya registrado ya registrado"
             })
@@ -34,7 +34,7 @@ export async function saveProduct(req, res) {
     } catch (error) {
         return res.status(500).json({
             "status": false,
-            "error": error,
+            "error": error.message,
             "message": "No se pudo crear el producto"
         })
     }
