@@ -23,7 +23,7 @@ import { validateSchema } from '../middlewares/validatorRequest.js'
 router.get('/', obtainAllProducts)
 router.get('/get_favorites/:token',authRequired, getAllProductsFavorites)
 router.get('/searchProducts', searchProducts)
-router.post('/registerProduct', saveProduct)
+router.post('/register-product', saveProduct)
 router.post('/createFavorites/:id', createFavorites)
 router.get('/:id', findProductById)
 router.delete('/:id', deleteProduct)

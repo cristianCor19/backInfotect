@@ -18,6 +18,50 @@ export async function totalSold(req, res) {
     }
 }
 
+export async function totalSoldMonth(req, res) {
+    try {
+        const sales = await Sales.find()
+        
+
+        const salesDate = sales.map((item) => ({
+            totalAmount: item.totalAmount,
+            month: item.orderDate.getMonth(),
+            year: item.orderDate.getFullYear(),
+
+        }))
+
+        const currentYear = new Date().getFullYear()
+
+        const totalAmountCurrent = Object.entries(
+            salesDate
+                .filter((item) => item.year === currentYear)
+                .reduce((amount, {month, totalAmount}) => {
+                    amount[month] = (amount[month] || 0) + totalAmount;
+                    return amount;
+                }, {})
+        ).map(([month, totalAmount]) => ({month, totalAmount}))
+
+        const totalAmountPrevious = Object.entries(
+            salesDate
+                .filter((item) => item.year === currentYear-1)
+                .reduce((amount, {month, totalAmount}) => {
+                    amount[month] = (amount[month] || 0) + totalAmount;
+                    return amount;
+                }, {})
+        ).map(([month, totalAmount]) => ({month, totalAmount}))
+
+
+
+        return res.status(200).json({
+            "status": true,
+            "totalCurrentYear": totalAmountCurrent,
+            "totalAmountPrevious": totalAmountPrevious
+        })
+    } catch (error) {
+
+    }
+}
+
 export async function totalSoldCategory(req, res) {
     try {
         const sales = await Sales.find();
@@ -27,10 +71,10 @@ export async function totalSoldCategory(req, res) {
         );
 
         const totalAmountCategory = salesProducts.reduce((amount, { category, price, quantity }) => {
-            amount[category] = (amount[category] || 0) + (price* quantity);
+            amount[category] = (amount[category] || 0) + (price * quantity);
             return amount;
         }, {});
-        
+
         const createArrayCategorys = Object.entries(totalAmountCategory)
 
         const categorys = createArrayCategorys.map(item => {
@@ -52,8 +96,6 @@ export async function totalSoldCategory(req, res) {
     }
 }
 
-
-
 export async function bestSellingProduct(req, res) {
     try {
         const sales = await Sales.find();
@@ -64,7 +106,7 @@ export async function bestSellingProduct(req, res) {
                     productId, quantity
                 }))).flat()
 
-    
+
 
         const quantityProduct = salesProducts.reduce((amount, { productId, quantity }) => {
             amount[productId] = (amount[productId] || 0) + quantity;
