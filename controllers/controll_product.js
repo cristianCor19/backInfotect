@@ -148,7 +148,11 @@ export async function getAllProductsFavorites(req, res) {
 
 export async function obtainAllProducts(req, res) {
     try {
-        const dataProducts = await Product.find()
+        
+        const category = req.query.category;
+
+        const dataProducts = await Product.find({type: category})
+
         
         return res.status(200).json({
             "status": true,
@@ -159,6 +163,31 @@ export async function obtainAllProducts(req, res) {
             "status": false,
             "error": error,
             "message": "Error al obtener los productos"
+        })
+    }
+}
+
+export async function getActivitysUser(req,res){
+    try {
+        const idUser = req.user.id;
+        const state = req.query.state;
+       
+
+        let filter = {idUser: idUser};
+        if(state && state !=="all"){
+            filter.state = state;
+        } 
+        
+        const dataActivitys = await Activity.find(filter)
+
+        return res.status(200).json({
+            "status": true,
+            data: dataActivitys,  
+        })
+    } catch (error) {
+        return res.status(500).json({
+            "status": false,
+            "message": error.message
         })
     }
 }
