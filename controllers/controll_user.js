@@ -3,19 +3,21 @@ import { genSalt, hash } from 'bcrypt'
 
 export async function saveUser(req, res) {
     try {
-        const { id_user, name, lastname, email, password, phone, role } = req.body
+        const { name,email, password,  } = req.body
+        
+        
         const userFound = await User.findOne({ email: email })
         if (!userFound) {
             const salt = await genSalt(10)
             const hashedPassword = await hash(password, salt)
             const newUser = new User({
-                id_user,
+                // id_user,
                 name,
-                lastname,
+                // lastname,
                 email,
                 password: hashedPassword,
-                phone,
-                role
+                // phone,
+                // role
             })
 
             const dataUserSave = await newUser.save()
