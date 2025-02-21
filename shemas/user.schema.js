@@ -5,23 +5,11 @@ export const registerUserShema = z.object({
     name: z.string({
         required_error: 'El nombre es requerido'
     }),
-
-    lastname: z.string({
-        required_error: 'El apellido es requirido'
-    }),
-
     email: z.string({
         required_error: 'El correo es requerido'
     }).email({
         message: 'El correo es invalido'
     }),
-
-    phone: z.string({
-        required_error: 'El telefono es requerido'
-    }).min(10,{
-        message: 'El telefono debe tener 10 caracteres'
-    }),
-    
     password: z.string({
         required_error: 'La constraseña es requerida'
     }).regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/, {

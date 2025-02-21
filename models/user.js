@@ -13,7 +13,7 @@ const userSchema = new Schema(
     },
     lastname: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -28,7 +28,7 @@ const userSchema = new Schema(
     },
     phone: {
       type: Number,
-      required: true,
+      required: false,
     },
     role: {
       type: String,
