@@ -151,8 +151,13 @@ export async function obtainAllProducts(req, res) {
         
         const category = req.query.category;
 
-        const dataProducts = await Product.find({type: category})
+        let query = {}
+        if(category){
+            query.type = category
+        }
 
+        const dataProducts = await Product.find(query);
+        
         
         return res.status(200).json({
             "status": true,
